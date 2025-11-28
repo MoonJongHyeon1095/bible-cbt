@@ -103,6 +103,24 @@ export function SegmentEditor({
   } | null>(null);
 
   // 클릭 좌표 → 문자 인덱스 변환
+  // const getCharIndexFromEvent = (
+  //   e: React.MouseEvent<HTMLDivElement>
+  // ): number | null => {
+  //   if (!containerRef.current || charRects.length === 0) return null;
+
+  //   const rect = containerRef.current.getBoundingClientRect();
+  //   const x = e.clientX - rect.left;
+  //   const y = e.clientY - rect.top;
+
+  //   for (let i = 0; i < charRects.length; i++) {
+  //     const c = charRects[i];
+  //     if (!c) continue;
+  //     if (x >= c.left && x <= c.right && y >= c.top && y <= c.top + c.height) {
+  //       return i;
+  //     }
+  //   }
+  //   return null;
+  // };
   const getCharIndexFromEvent = (
     e: React.MouseEvent<HTMLDivElement>
   ): number | null => {
@@ -112,14 +130,27 @@ export function SegmentEditor({
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
+    let bestIdx: number | null = null;
+    let bestDist = Infinity;
+
     for (let i = 0; i < charRects.length; i++) {
       const c = charRects[i];
       if (!c) continue;
-      if (x >= c.left && x <= c.right && y >= c.top && y <= c.top + c.height) {
-        return i;
+
+      const cx = (c.left + c.right) / 2;
+      const cy = c.top + c.height / 2;
+
+      const dx = x - cx;
+      const dy = y - cy;
+      const dist = dx * dx + dy * dy;
+
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestIdx = i;
       }
     }
-    return null;
+
+    return bestIdx;
   };
 
   // ───────────── 컨테이너 마우스 이벤트 ─────────────
