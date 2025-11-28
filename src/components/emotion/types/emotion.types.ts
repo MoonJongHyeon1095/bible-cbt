@@ -42,8 +42,10 @@ export type ThoughtNode = {
   level: number;
   /** 이 노드가 무엇을 쓰는 칸인지 힌트 (placeholder 느낌) */
   hint?: string;
-  /** 사용자가 실제로 입력한 텍스트 (선택/확정된 값) */
+  /** 사용자가 실제로 입력한 텍스트 또는 LLM belief 출력(선택/확정된 값) */
   userText: string;
+  // 🔹 LLM이 준 감정 설명을 저장할 필드
+  emotionReason?: string;
 };
 
 /**

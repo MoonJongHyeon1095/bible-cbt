@@ -19,7 +19,7 @@ export function TextInput({ value, onChange, onNext }: TextInputProps) {
       className="flex flex-col gap-2"
     >
       <textarea
-        className="w-full rounded-md border px-2 py-1.5 text-xs leading-snug outline-none"
+        className="w-full rounded-md border px-2 py-1.5 text-s leading-snug outline-none"
         rows={6}
         value={value}
         onChange={(e) => {

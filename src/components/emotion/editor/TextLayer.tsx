@@ -21,7 +21,7 @@ export function TextLayer({
   }, [text, containerRef, onCharRectsChange]);
 
   return (
-    <div className="whitespace-pre-wrap text-xs leading-relaxed font-sans text-gray-800">
+    <div className="whitespace-pre-wrap text-s leading-relaxed font-sans text-gray-800">
       {text.split("").map((ch, idx) => (
         <span key={idx} data-idx={idx}>
           {ch}

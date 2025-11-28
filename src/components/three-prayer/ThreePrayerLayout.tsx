@@ -283,9 +283,6 @@ export function ThreePrayerLayout({ draft, setDraft }: Props) {
               </button>
             ))}
           </div>
-          <div>
-            {currentIndex + 1} / {stepOrder.length}
-          </div>
         </div>
 
         {/* 세 칸 레이아웃 */}

@@ -1,9 +1,10 @@
-// // src/components/emotion/EmotionSegmentsSection.tsx
+// // src/components/emotion/EmotionSegmentSection.tsx
 // "use client";
 
 // import { useState } from "react";
 // import { EmotionDiveBlock } from "./dive/EmotionDiveBlock";
 // import { SegmentEditor } from "./editor/SegmentEditor";
+// import type { RegulationGoal } from "./modal/EmotionRegulatonChoiceModal";
 // import type {
 //   EmotionInputSegment,
 //   EmotionSegment,
@@ -11,10 +12,18 @@
 //   ThoughtNodeId,
 // } from "./types/emotion.types";
 
+// type EmotionContext = {
+//   emotionId: string;
+//   emotionName: string;
+//   intensity: number;
+//   regulationGoal: RegulationGoal;
+// };
+
 // type Props = {
-//   text: string; // 감정 카드 전체 텍스트
+//   text: string;
 //   onSegmentsChange?: (segments: EmotionSegment[]) => void;
 //   onRequestDive?: (segment: EmotionSegment) => void;
+//   emotionContext?: EmotionContext; // 🔹 추가
 // };
 
 // /** UI 전용 타입들 */
@@ -29,7 +38,6 @@
 //   nodes: ThoughtNodeWithSuggestions[];
 // };
 
-// /** helper들 전부 여기로 이동 */
 // function createThoughtNode(
 //   level: number,
 //   userText = "",
@@ -91,13 +99,12 @@
 //   text,
 //   onSegmentsChange,
 //   onRequestDive,
+//   emotionContext,
 // }: Props) {
 //   const [segments, setSegments] = useState<EmotionSegment[] | null>(null);
 //   const [diveBlocks, setDiveBlocks] = useState<DiveBlock[]>([]);
 
 //   const displayText = formatTextWithSentenceSpacing(text);
-
-//   /** ↓↓↓ 여기부터는 기존 EmotionCard의 핸들러들 거의 그대로 ↓↓↓ */
 
 //   const handleDiveSegment = (segment: EmotionSegment) => {
 //     setDiveBlocks((prev) => {
@@ -230,6 +237,7 @@
 //               isOpen={block.isOpen}
 //               nodes={block.nodes}
 //               fullText={text}
+//               emotionContext={emotionContext}
 //               onToggle={() => toggleDiveOpen(block.segment.id)}
 //               onRemove={() => removeDiveBlock(block.segment.id)}
 //               onChangeNode={(nodeId, v) =>
@@ -274,7 +282,7 @@ type Props = {
   text: string;
   onSegmentsChange?: (segments: EmotionSegment[]) => void;
   onRequestDive?: (segment: EmotionSegment) => void;
-  emotionContext?: EmotionContext; // 🔹 추가
+  emotionContext?: EmotionContext;
 };
 
 /** UI 전용 타입들 */
@@ -314,11 +322,17 @@ function formatTextWithSentenceSpacing(raw: string): string {
   );
 }
 
+// 🔹 belief / emotionReason 둘 다 저장할 수 있게 payload 타입 정의
+type LockPayload = {
+  belief: string;
+  emotionReason?: string;
+};
+
 function lockNodeAndAddDeeper(
   blocks: DiveBlock[],
   segmentId: string,
   nodeId: ThoughtNodeId,
-  chosenText: string
+  chosen: LockPayload
 ): DiveBlock[] {
   return blocks.map((b) => {
     if (b.segment.id !== segmentId) return b;
@@ -327,7 +341,8 @@ function lockNodeAndAddDeeper(
       n.id === nodeId
         ? {
             ...n,
-            userText: chosenText,
+            userText: chosen.belief, // 🔹 핵심 문장
+            emotionReason: chosen.emotionReason, // 🔹 부연 설명 같이 저장
             suggestions: undefined,
             locked: true,
           }
@@ -431,18 +446,24 @@ export function EmotionSegmentsSection({
   ) => {
     if (!textValue.trim()) return;
     setDiveBlocks((prev) =>
-      lockNodeAndAddDeeper(prev, segmentId, nodeId, textValue)
+      lockNodeAndAddDeeper(prev, segmentId, nodeId, {
+        belief: textValue,
+      })
     );
   };
 
   const chooseSuggestion = (
     segmentId: string,
     nodeId: ThoughtNodeId,
-    suggestion: string
+    belief: string,
+    emotionReason?: string
   ) => {
-    if (!suggestion.trim()) return;
+    if (!belief.trim()) return;
     setDiveBlocks((prev) =>
-      lockNodeAndAddDeeper(prev, segmentId, nodeId, suggestion)
+      lockNodeAndAddDeeper(prev, segmentId, nodeId, {
+        belief,
+        emotionReason,
+      })
     );
   };
 
@@ -497,8 +518,13 @@ export function EmotionSegmentsSection({
               onDiveFromInput={(nodeId, v) =>
                 diveFromInput(block.segment.id, nodeId, v)
               }
-              onChooseSuggestion={(nodeId, v) =>
-                chooseSuggestion(block.segment.id, nodeId, v)
+              onChooseSuggestion={(nodeId, belief, emotionReason) =>
+                chooseSuggestion(
+                  block.segment.id,
+                  nodeId,
+                  belief,
+                  emotionReason
+                )
               }
             />
           ))}
