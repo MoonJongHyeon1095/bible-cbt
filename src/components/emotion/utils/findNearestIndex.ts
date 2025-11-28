@@ -1,57 +1,12 @@
-// // src/components/emotion/utils/findNearestIndex.ts
-
-// /**
-//  *
-// clientX, clientY는 마우스 커서 위치
-
-// 각 글자의 중심점 (cx, cy)와의 거리 최소값을 찾음
-
-// 가장 가까운 글자의 인덱스를 반환 → idx
-
-// 그 인덱스로 updateSegmentBoundary 호출 → segment.start/end 갱신
-
-// 즉, 마우스를 이 글자 근처로 끌어오면, 경계가 그 글자 인덱스에 붙는다는 의미.
-//  */
-// import type { RelativeRect } from "./splitToCharRects";
-
-// export function findNearestIndex(
-//   charRects: RelativeRect[],
-//   x: number, // 컨테이너 기준 X
-//   y: number // 컨테이너 기준 Y
-// ): number {
-//   if (charRects.length === 0) return 0;
-
-//   let bestIdx = 0;
-//   let bestDist = Infinity;
-
-//   charRects.forEach((rect, idx) => {
-//     const cx = rect.left + rect.width / 2;
-//     const cy = rect.top + rect.height / 2;
-//     const dx = cx - x;
-//     const dy = cy - y;
-//     const dist = dx * dx + dy * dy;
-
-//     if (dist < bestDist) {
-//       bestDist = dist;
-//       bestIdx = idx;
-//     }
-//   });
-
-//   return bestIdx;
-// }
-
 // src/components/emotion/utils/findNearestIndex.ts
 import type { RelativeRect } from "./splitToCharRects";
 
 /**
- * (x, y) 좌표에서 "가장 가까워 보이는 글자 인덱스"를 찾는다.
+ * (x, y) 좌표에서 "가장 자연스러운 글자 인덱스"를 찾는다.
  *
- * 1. 먼저 세로(y) 기준으로 가장 가까운 줄(row)을 고르고
- * 2. 그 줄 안에서 가로(x) 기준으로 가장 가까운 글자를 고른다.
- *
- * 이렇게 해야 줄 끝 근처에서 아래로 드래그할 때
- * 첫 줄 맨 마지막 글자에 계속 붙어있지 않고
- * 자연스럽게 아래 줄로 넘어간다.
+ * 1. 줄(row)을 y 기준으로 고르고
+ * 2. 그 줄 안에서 x 기준으로 가장 가까운 글자를 찾되,
+ *    거리 비슷하면 **왼쪽에 있는 글자**를 우선한다.
  */
 export function findNearestIndex(
   charRects: RelativeRect[],
@@ -60,7 +15,7 @@ export function findNearestIndex(
 ): number {
   if (!charRects.length) return 0;
 
-  // 1) 줄별로 그룹핑 (rect.top 을 반올림해서 같은 줄로 본다)
+  // 1) 줄별로 그룹핑 (rect.top을 반올림해서 같은 줄로 본다)
   const rowMap = new Map<
     number,
     { top: number; height: number; indices: number[] }
@@ -100,19 +55,37 @@ export function findNearestIndex(
   }
 
   // 3) 그 줄 안에서 x 기준으로 가장 가까운 글자 선택
-  let bestIdx = bestRow.indices[0];
-  let bestXDist = Infinity;
+  //    - 항상 왼쪽→오른쪽 순으로 정렬해 두고
+  //    - 거리 비슷하면 왼쪽(cx가 더 작은 것)을 우선
+  const centers = bestRow.indices
+    .map((idx) => {
+      const r = charRects[idx]!;
+      const cx = (r.left + r.right) / 2;
+      return { idx, cx };
+    })
+    .sort((a, b) => a.cx - b.cx); // 왼쪽→오른쪽
 
-  for (const idx of bestRow.indices) {
-    const r = charRects[idx];
-    if (!r) continue;
-    const cx = (r.left + r.right) / 2;
-    const dx = Math.abs(x - cx);
-    if (dx < bestXDist) {
-      bestXDist = dx;
-      bestIdx = idx;
+  // x가 줄의 가장 왼쪽보다 왼쪽이면 맨 앞, 가장 오른쪽보다 오른쪽이면 맨 뒤
+  if (x <= centers[0].cx) return centers[0].idx;
+  if (x >= centers[centers.length - 1].cx)
+    return centers[centers.length - 1].idx;
+
+  // 그 외에는 "가장 가까운 cx", 거리 같으면 더 왼쪽인(cx 작은) 글자
+  let best = centers[0];
+  let bestDist = Math.abs(x - best.cx);
+
+  for (let i = 1; i < centers.length; i++) {
+    const c = centers[i];
+    const dist = Math.abs(x - c.cx);
+
+    if (dist < bestDist) {
+      best = c;
+      bestDist = dist;
+    } else if (dist === bestDist && c.cx < best.cx) {
+      // 거리 같으면 왼쪽에 있는 글자 우선
+      best = c;
     }
   }
 
-  return bestIdx;
+  return best.idx;
 }

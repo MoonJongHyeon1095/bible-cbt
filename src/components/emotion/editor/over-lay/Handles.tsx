@@ -5,12 +5,6 @@ import type { EmotionInputSegment } from "../../types/emotion.types";
 import type { RelativeRect } from "../../utils/splitToCharRects";
 import { HandleBar } from "./HandleBar";
 
-// const HANDLE_COLORS = [
-//   "bg-blue-500",
-//   "bg-emerald-500",
-//   "bg-violet-500",
-//   "bg-amber-500",
-// ];
 const HANDLE_COLORS = [
   "bg-blue-500 dark:bg-blue-400",
   "bg-emerald-500 dark:bg-emerald-400",

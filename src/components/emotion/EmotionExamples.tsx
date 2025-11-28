@@ -31,7 +31,7 @@ const EXAMPLES: EmotionExample[] = [
   {
     id: "boss-criticize",
     emoji: "😡",
-    text: "상사가 '이것도 모르세요?'라고 다른 동료 5명에서 말했어. 다들 고개를 숙이고 어색한 웃음만 지었어.",
+    text: "상사가 '이것도 모르세요?'라고 다른 동료 5명 앞에서 말했어. 다들 고개를 숙이고 어색한 웃음만 지었어.",
   },
   {
     id: "lunch-alone",

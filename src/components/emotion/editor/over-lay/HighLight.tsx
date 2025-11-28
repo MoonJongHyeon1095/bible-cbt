@@ -4,12 +4,6 @@
 import type { EmotionSegment } from "../../types/emotion.types";
 import type { RelativeRect } from "../../utils/splitToCharRects";
 
-// const COLOR_THEMES = [
-//   { bg: "bg-blue-100/30", border: "border-blue-300" },
-//   { bg: "bg-emerald-100/30", border: "border-emerald-300" },
-//   { bg: "bg-violet-100/30", border: "border-violet-300" },
-//   { bg: "bg-amber-100/30", border: "border-amber-300" },
-// ];
 const COLOR_THEMES = [
   {
     bgLight: "bg-blue-100/40",
@@ -84,31 +78,6 @@ export function Highlight({
     ? index % COLOR_THEMES.length
     : index % COLOR_THEMES.length;
 
-  // const theme = COLOR_THEMES[colorIndex];
-  // const boxes = calcLineBoxes(segment, charRects);
-
-  // return boxes.map((b, i) => (
-  //   <div
-  //     key={i}
-  //     className={`
-  //       absolute rounded-md pointer-events-none
-  //       ${theme.bg}
-  //       mix-blend-multiply
-  //       ${
-  //         isActive
-  //           ? `border-2 shadow-sm ${theme.border}`
-  //           : "border border-transparent"
-  //       }
-  //     `}
-  //     style={{
-  //       top: b.top,
-  //       left: b.left,
-  //       width: b.right - b.left,
-  //       height: b.height,
-  //       zIndex: 0,
-  //     }}
-  //   />
-  // ));
   const theme = COLOR_THEMES[colorIndex];
   const boxes = calcLineBoxes(segment, charRects);
 
