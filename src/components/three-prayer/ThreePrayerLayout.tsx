@@ -5,12 +5,12 @@
 // import { useState } from "react";
 // import { EmotionCard } from "../emotion";
 // import { AlternativeThoughtCard } from "./AlternativeThoughtCard";
-// import { DistortionCard } from "./DistortionCard";
+// import { DistortionCard } from "../distortion/DistortionCard";
 
 // type Props = {
 //   draft: ThreePrayerDraft;
 //   setDraft: React.Dispatch<React.SetStateAction<ThreePrayerDraft>>;
-//   onResetAll: () => void; // 지금은 안 쓰지만 나중에 사용할 수 있으니 남겨둠
+//   onResetAll: () => void;
 // };
 
 // type Step = "emotion" | "distortion" | "alternative";
@@ -34,10 +34,22 @@
 //     return `${base} ${step === s ? active : inactive}`;
 //   };
 
+//   const getGridColsClass = (s: Step) => {
+//     switch (s) {
+//       case "emotion":
+//         return "md:grid-cols-[minmax(0,0.5fr)_minmax(0,1.5fr)_minmax(0,0.5fr)]";
+//       case "distortion":
+//         return "md:grid-cols-[minmax(0,1.5fr)_minmax(0,0.5fr)_minmax(0,0.5fr)]";
+//       case "alternative":
+//         return "md:grid-cols-[minmax(0,0.5fr)_minmax(0,0.5fr)_minmax(0,1.5fr)]";
+//       default:
+//         return "md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.3fr)_minmax(0,0.8fr)]";
+//     }
+//   };
+
 //   return (
 //     <main className="min-h-screen bg-[#fafafa] p-6">
 //       <div className="mx-auto max-w-5xl">
-//         {/* 상단 헤더 */}
 //         <header className="mb-6">
 //           <h1 className="text-2xl font-bold">세칸 기도문</h1>
 //           <p className="text-sm text-gray-600">
@@ -70,8 +82,11 @@
 //         </div>
 
 //         {/* 세 칸 레이아웃 */}
-//         <section className="grid items-start gap-4 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.3fr)_minmax(0,0.8fr)]">
-//           {/* 왼쪽: 인지왜곡 */}
+//         <section
+//           className={`grid grid-cols-1 items-start gap-4 ${getGridColsClass(
+//             step
+//           )}`}
+//         >
 //           <div className={getCardWrapperClass("distortion")}>
 //             <DistortionCard
 //               value={draft.distorted}
@@ -80,7 +95,6 @@
 //             />
 //           </div>
 
-//           {/* 가운데: 감정 기술 */}
 //           <div className={getCardWrapperClass("emotion")}>
 //             <EmotionCard
 //               value={draft.prayer}
@@ -89,7 +103,6 @@
 //             />
 //           </div>
 
-//           {/* 오른쪽: 대안사고 */}
 //           <div className={getCardWrapperClass("alternative")}>
 //             <AlternativeThoughtCard
 //               value={draft.truth}
@@ -99,15 +112,13 @@
 //           </div>
 //         </section>
 
-//         {/* ↓↓↓ 여기부터는 단계와 무관하게 항상 나오는 Footer 영역 ↓↓↓ */}
+//         {/* Footer (그대로 유지) */}
 //         <footer className="mt-16 border-t border-gray-200 pt-8">
-//           {/* Copyright + 요약 별점 */}
 //           <div className="mb-6 text-center text-xs text-gray-500">
 //             <div className="inline-flex flex-col items-center gap-1">
 //               <span className="rounded-full border px-3 py-1 text-[11px]">
 //                 Copyright © 2025 617ALLIANCE
 //               </span>
-//               {/* 별점/리뷰 개수 간단 표시 (실제 기능은 나중에 붙여도 됨) */}
 //               <div className="mt-2 flex items-center gap-2 text-[11px]">
 //                 <span className="inline-flex items-center gap-1">
 //                   <span>⭐</span>
@@ -119,13 +130,11 @@
 //             </div>
 //           </div>
 
-//           {/* 리뷰 작성 박스 */}
 //           <div className="mx-auto mb-6 max-w-2xl rounded-2xl bg-white p-4 shadow-sm">
 //             <h2 className="mb-3 text-sm font-semibold text-gray-800">
 //               후기 작성하기
 //             </h2>
 
-//             {/* 닉네임 + 별점 */}
 //             <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 //               <div className="flex items-center gap-2 text-xs text-gray-600">
 //                 <span>별점을 선택해주세요</span>
@@ -149,7 +158,6 @@
 //               />
 //             </div>
 
-//             {/* 내용 입력 */}
 //             <textarea
 //               rows={4}
 //               placeholder="어떤 점이 좋았나요? 솔직한 후기를 남겨주세요 🙂"
@@ -167,7 +175,6 @@
 //             </div>
 //           </div>
 
-//           {/* 후기 목록 (샘플) */}
 //           <div className="mx-auto max-w-2xl">
 //             <h3 className="mb-2 text-xs font-semibold text-gray-700">
 //               후기 목록
@@ -205,14 +212,18 @@
 
 import type { ThreePrayerDraft } from "@/types/draft";
 import { useState } from "react";
+import { DistortionCard } from "../distortion/DistortionCard";
+import {
+  useDistortionAnalysis,
+  type DistortionRequestPayload,
+} from "../distortion/hooks/useDistortionAnalysis";
 import { EmotionCard } from "../emotion";
 import { AlternativeThoughtCard } from "./AlternativeThoughtCard";
-import { DistortionCard } from "./DistortionCard";
 
 type Props = {
   draft: ThreePrayerDraft;
   setDraft: React.Dispatch<React.SetStateAction<ThreePrayerDraft>>;
-  onResetAll: () => void; // 지금은 안 쓰지만 나중에 사용할 수 있으니 남겨둠
+  onResetAll: () => void;
 };
 
 type Step = "emotion" | "distortion" | "alternative";
@@ -222,6 +233,19 @@ const stepOrder: Step[] = ["emotion", "distortion", "alternative"];
 export function ThreePrayerLayout({ draft, setDraft }: Props) {
   const [step, setStep] = useState<Step>("emotion");
   const currentIndex = stepOrder.indexOf(step);
+
+  // 🔽 인지오류 분석 훅 사용
+  const {
+    distortionText,
+    setDistortionText,
+    isLoading: isDistortionLoading,
+    reset: resetDistortion,
+    runAnalysis,
+  } = useDistortionAnalysis();
+
+  // Emotion 쪽에서 넘어온 seed 보관
+  const [distortionSeed, setDistortionSeed] =
+    useState<DistortionRequestPayload | null>(null);
 
   const getStepLabel = (s: Step) => {
     if (s === "emotion") return "감정 기술 / 자동사고 체크";
@@ -236,27 +260,47 @@ export function ThreePrayerLayout({ draft, setDraft }: Props) {
     return `${base} ${step === s ? active : inactive}`;
   };
 
-  // 현재 단계에 따라 가로 폭 비율 다르게
   const getGridColsClass = (s: Step) => {
     switch (s) {
       case "emotion":
-        // 왼쪽 0.5 : 가운데 1.5 : 오른쪽 0.5
         return "md:grid-cols-[minmax(0,0.5fr)_minmax(0,1.5fr)_minmax(0,0.5fr)]";
       case "distortion":
-        // 왼쪽 1.5 : 가운데 0.5 : 오른쪽 0.5
         return "md:grid-cols-[minmax(0,1.5fr)_minmax(0,0.5fr)_minmax(0,0.5fr)]";
       case "alternative":
-        // 왼쪽 0.5 : 가운데 0.5 : 오른쪽 1.5
         return "md:grid-cols-[minmax(0,0.5fr)_minmax(0,0.5fr)_minmax(0,1.5fr)]";
       default:
         return "md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.3fr)_minmax(0,0.8fr)]";
     }
   };
 
+  // 🔽 Emotion 쪽에서 "인지오류 검토하기" 눌렀을 때 호출
+  const handleMoveThoughtToDistortion = (payload: DistortionRequestPayload) => {
+    setDistortionSeed(payload);
+    const belief = payload.currentThought.belief ?? "";
+    setDistortionText(belief);
+    setDraft((d) => ({ ...d, distorted: belief }));
+    setStep("distortion");
+  };
+
+  // DistortionCard용 change / reset
+  const handleDistortionChange = (v: string) => {
+    setDistortionText(v);
+    setDraft((d) => ({ ...d, distorted: v }));
+  };
+
+  const handleDistortionReset = () => {
+    resetDistortion();
+    setDraft((d) => ({ ...d, distorted: "" }));
+  };
+
+  const handleRequestDistortionAnalysis = () => {
+    if (!distortionSeed) return;
+    runAnalysis(distortionSeed);
+  };
+
   return (
     <main className="min-h-screen bg-[#fafafa] p-6">
       <div className="mx-auto max-w-5xl">
-        {/* 상단 헤더 */}
         <header className="mb-6">
           <h1 className="text-2xl font-bold">세칸 기도문</h1>
           <p className="text-sm text-gray-600">
@@ -283,6 +327,9 @@ export function ThreePrayerLayout({ draft, setDraft }: Props) {
               </button>
             ))}
           </div>
+          <div>
+            {currentIndex + 1} / {stepOrder.length}
+          </div>
         </div>
 
         {/* 세 칸 레이아웃 */}
@@ -291,25 +338,25 @@ export function ThreePrayerLayout({ draft, setDraft }: Props) {
             step
           )}`}
         >
-          {/* 왼쪽: 인지왜곡 */}
           <div className={getCardWrapperClass("distortion")}>
             <DistortionCard
-              value={draft.distorted}
-              onChange={(v) => setDraft((d) => ({ ...d, distorted: v }))}
-              onReset={() => setDraft((d) => ({ ...d, distorted: "" }))}
+              value={distortionText}
+              onChange={handleDistortionChange}
+              onReset={handleDistortionReset}
+              isLoading={isDistortionLoading}
+              onRequestAnalysis={handleRequestDistortionAnalysis}
             />
           </div>
 
-          {/* 가운데: 감정 기술 */}
           <div className={getCardWrapperClass("emotion")}>
             <EmotionCard
               value={draft.prayer}
               onChange={(v) => setDraft((d) => ({ ...d, prayer: v }))}
               onReset={() => setDraft((d) => ({ ...d, prayer: "" }))}
+              onMoveThoughtToDistortion={handleMoveThoughtToDistortion}
             />
           </div>
 
-          {/* 오른쪽: 대안사고 */}
           <div className={getCardWrapperClass("alternative")}>
             <AlternativeThoughtCard
               value={draft.truth}
@@ -319,15 +366,13 @@ export function ThreePrayerLayout({ draft, setDraft }: Props) {
           </div>
         </section>
 
-        {/* ↓↓↓ 여기부터는 단계와 무관하게 항상 나오는 Footer 영역 ↓↓↓ */}
+        {/* Footer (그대로 유지) */}
         <footer className="mt-16 border-t border-gray-200 pt-8">
-          {/* Copyright + 요약 별점 */}
           <div className="mb-6 text-center text-xs text-gray-500">
             <div className="inline-flex flex-col items-center gap-1">
               <span className="rounded-full border px-3 py-1 text-[11px]">
                 Copyright © 2025 617ALLIANCE
               </span>
-              {/* 별점/리뷰 개수 간단 표시 (실제 기능은 나중에 붙여도 됨) */}
               <div className="mt-2 flex items-center gap-2 text-[11px]">
                 <span className="inline-flex items-center gap-1">
                   <span>⭐</span>
@@ -339,13 +384,11 @@ export function ThreePrayerLayout({ draft, setDraft }: Props) {
             </div>
           </div>
 
-          {/* 리뷰 작성 박스 */}
           <div className="mx-auto mb-6 max-w-2xl rounded-2xl bg-white p-4 shadow-sm">
             <h2 className="mb-3 text-sm font-semibold text-gray-800">
               후기 작성하기
             </h2>
 
-            {/* 닉네임 + 별점 */}
             <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-2 text-xs text-gray-600">
                 <span>별점을 선택해주세요</span>
@@ -369,7 +412,6 @@ export function ThreePrayerLayout({ draft, setDraft }: Props) {
               />
             </div>
 
-            {/* 내용 입력 */}
             <textarea
               rows={4}
               placeholder="어떤 점이 좋았나요? 솔직한 후기를 남겨주세요 🙂"
@@ -387,7 +429,6 @@ export function ThreePrayerLayout({ draft, setDraft }: Props) {
             </div>
           </div>
 
-          {/* 후기 목록 (샘플) */}
           <div className="mx-auto max-w-2xl">
             <h3 className="mb-2 text-xs font-semibold text-gray-700">
               후기 목록

@@ -11,7 +11,6 @@ type EmotionContext = {
   regulationGoal: RegulationGoal;
 };
 
-// API에서 오는 제안 타입
 type ApiSuggestion = {
   belief: string;
   emotion_reason: string;
@@ -27,11 +26,8 @@ type EmotionDiveCardProps = {
   fullText: string;
   emotionContext?: EmotionContext;
   onDiveFromInput: (text: string) => void;
-  // belief + emotionReason 둘 다 부모로 올려줌
   onChooseSuggestion: (belief: string, emotionReason?: string) => void;
-  // 이미 확정된 노드가 가진 emotionReason
   emotionReason?: string;
-  // 왼쪽으로 보내기 (아직 안 쓰면 안 넘겨도 됨)
   onMoveLeft?: (belief: string, emotionReason?: string) => void;
 };
 
@@ -67,9 +63,7 @@ export function EmotionDiveCard({
       try {
         const res = await fetch("/api/emotion/suggestion", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             fullText,
             segmentText,
@@ -94,13 +88,27 @@ export function EmotionDiveCard({
     })();
   }, [fullText, segmentText, value, level, locked, emotionContext]);
 
-  // 공통 버튼 스타일들
-  const primaryDownBtn =
-    "inline-flex items-center justify-center rounded-full bg-gray-900 px-3 py-1 text-[11px] font-medium text-white shadow-sm transition-transform duration-150 hover:translate-y-[1px] hover:bg-black";
-  const secondaryLeftBtn =
-    "group inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white/90 px-3 py-1 text-[11px] text-gray-600 shadow-sm transition-transform duration-150 hover:-translate-x-[2px] hover:bg-gray-50";
+  // 공통 버튼 스타일
+  const primaryDownBtn = `
+    inline-flex items-center justify-center rounded-full
+    bg-[#5B4BFF] bg-opacity-90 px-3 py-1
+    text-[11px] font-extrabold text-white
+    shadow-sm transition-transform duration-150
+    hover:translate-y-[2px]
+    active:translate-y-[4px]
+  `;
 
-  // 이미 선택이 확정된 노드
+  const secondaryLeftBtn = `
+    group inline-flex items-center gap-1 rounded-full
+    border border-[#CCC8FF]
+    bg-[#5B4BFF] bg-opacity-90
+    px-3 py-1 text-[11px] font-extrabold text-white
+    shadow-sm transition-transform duration-150
+    hover:-translate-x-[2px] hover:scale-[1.03]
+    active:translate-x-[0px]
+  `;
+
+  // 🔒 확정된 노드
   if (locked) {
     return (
       <div className="space-y-2">
@@ -110,9 +118,8 @@ export function EmotionDiveCard({
 
         <div className="rounded-md border border-gray-100 bg-gray-50/50 p-2 text-xs dark:border-neutral-700 dark:bg-neutral-900/40">
           <div className="leading-normal text-gray-800 dark:text-gray-100">
-            {/* belief */}
             <div className="font-semibold">{value}</div>
-            {/* emotionReason 보조 설명 */}
+
             {emotionReason && (
               <div className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">
                 {emotionReason}
@@ -120,17 +127,16 @@ export function EmotionDiveCard({
             )}
           </div>
 
-          {/* ✅ 확정된 노드도 항상 왼쪽으로 보내기 버튼 노출 */}
           <div className="mt-2 flex justify-start">
             <button
               type="button"
               className={secondaryLeftBtn}
               onClick={() => onMoveLeft?.(value, emotionReason)}
             >
-              <span className="transition-transform duration-150 group-hover:-translate-x-[2px]">
+              <span className="text-white font-extrabold transition-transform duration-150 group-hover:-translate-x-[2px]">
                 ←
               </span>
-              <span>왼쪽으로 보내기</span>
+              <span>인지오류 검토하기</span>
             </button>
           </div>
         </div>
@@ -138,18 +144,18 @@ export function EmotionDiveCard({
     );
   }
 
-  // 아직 선택되지 않은 노드
+  // ✍ 아직 선택되지 않은 상태
   return (
     <div className="space-y-4">
       <div className="text-[12px] text-gray-500 dark:text-gray-400">
         {label}
       </div>
 
-      {/* LLM 제안 */}
+      {/* 자동사고 후보 리스트 */}
       <div className="space-y-3">
         {isLoading && suggestions.length === 0 && (
           <div className="flex items-center gap-2 text-[11px] text-gray-400 dark:text-gray-500">
-            <span className="h-3 w-3 animate-spin rounded-full border border-gray-300 border-t-transparent dark:border-neutral-600 dark:border-t-transparent" />
+            <span className="h-3 w-3 animate-spin rounded-full border border-gray-300 border-t-transparent" />
             <span>자동사고 후보를 불러오는 중...</span>
           </div>
         )}
@@ -162,9 +168,8 @@ export function EmotionDiveCard({
               className="rounded-md border border-gray-100 bg-gray-50/50 p-2 text-xs dark:border-neutral-700 dark:bg-neutral-900/40"
             >
               <div className="leading-normal text-gray-800 dark:text-gray-100">
-                {/* belief 강조 */}
                 <div className="font-semibold">{s.belief}</div>
-                {/* emotion_reason 보조 설명 */}
+
                 {s.emotion_reason && (
                   <div className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">
                     {s.emotion_reason}
@@ -172,7 +177,6 @@ export function EmotionDiveCard({
                 )}
               </div>
 
-              {/* 🔹 카드 하단 좌/우 버튼 */}
               <div className="mt-2 flex items-center justify-between gap-2">
                 <button
                   type="button"
@@ -181,10 +185,10 @@ export function EmotionDiveCard({
                     onMoveLeft?.(s.belief, s.emotion_reason || undefined)
                   }
                 >
-                  <span className="transition-transform duration-150 group-hover:-translate-x-[2px]">
+                  <span className="text-white font-extrabold transition-transform duration-150 group-hover:-translate-x-[2px]">
                     ←
                   </span>
-                  <span>왼쪽으로 보내기</span>
+                  <span>인지오류 검토하기</span>
                 </button>
 
                 <button
@@ -201,7 +205,7 @@ export function EmotionDiveCard({
           ))}
       </div>
 
-      {/* 직접 입력 */}
+      {/* 직접 입력 영역 */}
       <div className="space-y-2">
         <div className="text-[11px] text-gray-500 dark:text-gray-400">
           직접 입력
@@ -227,10 +231,10 @@ export function EmotionDiveCard({
               className={secondaryLeftBtn}
               onClick={() => onMoveLeft?.(value, emotionReason)}
             >
-              <span className="transition-transform duration-150 group-hover:-translate-x-[2px]">
+              <span className="text-white font-extrabold transition-transform duration-150 group-hover:-translate-x-[2px]">
                 ←
               </span>
-              <span>왼쪽으로 보내기</span>
+              <span>인지오류 검토하기</span>
             </button>
 
             <button

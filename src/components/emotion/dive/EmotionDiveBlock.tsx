@@ -1,7 +1,6 @@
 // // src/components/emotion/dive/EmotionDiveBlock.tsx
 // "use client";
 
-// import { useState } from "react";
 // import type { RegulationGoal } from "../modal/EmotionRegulatonChoiceModal";
 // import type {
 //   EmotionSegment,
@@ -17,14 +16,14 @@
 //   regulationGoal: RegulationGoal;
 // };
 
-// type ThoughtNodeWithSuggestions = ThoughtNode & {
+// type ThoughtNodeWithUI = ThoughtNode & {
 //   locked?: boolean;
 // };
 
 // type EmotionDiveBlockProps = {
 //   segment: EmotionSegment;
-//   isOpen: boolean; // ✅ 이제 "초기값" 역할만
-//   nodes: ThoughtNodeWithSuggestions[];
+//   isOpen: boolean;
+//   nodes: ThoughtNodeWithUI[];
 //   fullText: string;
 //   emotionContext?: EmotionContext;
 
@@ -32,7 +31,6 @@
 //   onRemove: () => void;
 //   onChangeNode: (id: ThoughtNodeId, text: string) => void;
 //   onDiveFromInput: (id: ThoughtNodeId, text: string) => void;
-//   // belief + emotionReason 같이 받음
 //   onChooseSuggestion: (
 //     id: ThoughtNodeId,
 //     belief: string,
@@ -52,14 +50,6 @@
 //   onDiveFromInput,
 //   onChooseSuggestion,
 // }: EmotionDiveBlockProps) {
-//   // 🔹 isOpen은 "초기값"으로만 사용, 이후엔 로컬 state만 신뢰
-//   const [open, setOpen] = useState<boolean>(isOpen);
-
-//   const handleToggleClick = () => {
-//     setOpen((prev) => !prev); // UI 즉시 토글
-//     onToggle(); // 부모는 참고만 하도록 호출
-//   };
-
 //   return (
 //     <div className="overflow-hidden rounded-md border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900/40">
 //       {/* 헤더 */}
@@ -67,9 +57,9 @@
 //         <button
 //           type="button"
 //           className="flex w-full items-center gap-2 px-3 py-2.5 text-xs text-gray-800 dark:text-gray-100"
-//           onClick={handleToggleClick}
+//           onClick={onToggle}
 //         >
-//           <span className="shrink-0 text-[11px]">{open ? "▼" : "▶"}</span>
+//           <span className="shrink-0 text-[11px]">{isOpen ? "▼" : "▶"}</span>
 //           <span className="flex-1 truncate pr-6 text-left">{segment.text}</span>
 //         </button>
 
@@ -85,10 +75,10 @@
 //         </button>
 //       </div>
 
-//       {/* 내용: 언마운트하지 않고 hidden 처리만 */}
+//       {/* 내용 */}
 //       <div
 //         className={`space-y-6 border-t bg-gray-50 px-3 py-3 dark:border-neutral-800 dark:bg-neutral-900 ${
-//           open ? "" : "hidden"
+//           isOpen ? "" : "hidden"
 //         }`}
 //       >
 //         {nodes.map((node, index) => (
@@ -140,14 +130,14 @@ type EmotionContext = {
   regulationGoal: RegulationGoal;
 };
 
-type ThoughtNodeWithSuggestions = ThoughtNode & {
+type ThoughtNodeWithUI = ThoughtNode & {
   locked?: boolean;
 };
 
 type EmotionDiveBlockProps = {
   segment: EmotionSegment;
   isOpen: boolean;
-  nodes: ThoughtNodeWithSuggestions[];
+  nodes: ThoughtNodeWithUI[];
   fullText: string;
   emotionContext?: EmotionContext;
 
@@ -160,6 +150,9 @@ type EmotionDiveBlockProps = {
     belief: string,
     emotionReason?: string
   ) => void;
+
+  // 🔽 새로 추가: 왼쪽(인지오류)으로 보내기
+  onMoveLeft?: (node: ThoughtNodeWithUI) => void;
 };
 
 export function EmotionDiveBlock({
@@ -173,6 +166,7 @@ export function EmotionDiveBlock({
   onChangeNode,
   onDiveFromInput,
   onChooseSuggestion,
+  onMoveLeft,
 }: EmotionDiveBlockProps) {
   return (
     <div className="overflow-hidden rounded-md border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900/40">
@@ -199,7 +193,7 @@ export function EmotionDiveBlock({
         </button>
       </div>
 
-      {/* 내용: 언마운트하지 않고 hidden 처리만 */}
+      {/* 내용 */}
       <div
         className={`space-y-6 border-t bg-gray-50 px-3 py-3 dark:border-neutral-800 dark:bg-neutral-900 ${
           isOpen ? "" : "hidden"
@@ -227,6 +221,13 @@ export function EmotionDiveBlock({
               onDiveFromInput={(text) => onDiveFromInput(node.id, text)}
               onChooseSuggestion={(belief, emotionReason) =>
                 onChooseSuggestion(node.id, belief, emotionReason)
+              }
+              onMoveLeft={(belief, emotionReason) =>
+                onMoveLeft?.({
+                  ...node,
+                  userText: belief,
+                  emotionReason,
+                })
               }
             />
           </div>
