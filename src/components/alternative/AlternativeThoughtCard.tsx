@@ -1,4 +1,4 @@
-// src/components/three-prayer/AlternativeThoughtCard.tsx
+// src/components/alternative/AlternativeThoughtCard.tsx
 "use client";
 
 type Props = {

@@ -3,9 +3,18 @@
 
 // import type { ThreePrayerDraft } from "@/types/draft";
 // import { useState } from "react";
-// import { EmotionCard } from "../emotion";
-// import { AlternativeThoughtCard } from "./AlternativeThoughtCard";
-// import { DistortionCard } from "../distortion/DistortionCard";
+// import {
+//   useDistortionAnalysis,
+//   type DistortionRequestPayload,
+// } from "../distortion/hooks/useDistortionAnalysis";
+// import { ThreePrayerCardsSection } from "./ThreePrayerCardsSection";
+// import { ThreePrayerFooter } from "./ThreePrayerFooter";
+// import { ThreePrayerHeader } from "./ThreePrayerHeader";
+// import { ThreePrayerStepIndicator } from "./ThreePrayerStepIndicator";
+
+// export type Step = "emotion" | "distortion" | "alternative";
+
+// export const stepOrder: Step[] = ["emotion", "distortion", "alternative"];
 
 // type Props = {
 //   draft: ThreePrayerDraft;
@@ -13,13 +22,20 @@
 //   onResetAll: () => void;
 // };
 
-// type Step = "emotion" | "distortion" | "alternative";
-
-// const stepOrder: Step[] = ["emotion", "distortion", "alternative"];
-
 // export function ThreePrayerLayout({ draft, setDraft }: Props) {
 //   const [step, setStep] = useState<Step>("emotion");
 //   const currentIndex = stepOrder.indexOf(step);
+
+//   const {
+//     distortionText,
+//     setDistortionText,
+//     isLoading: isDistortionLoading,
+//     reset: resetDistortion,
+//     runAnalysis,
+//   } = useDistortionAnalysis();
+
+//   const [distortionSeed, setDistortionSeed] =
+//     useState<DistortionRequestPayload | null>(null);
 
 //   const getStepLabel = (s: Step) => {
 //     if (s === "emotion") return "감정 기술 / 자동사고 체크";
@@ -47,161 +63,69 @@
 //     }
 //   };
 
+//   // Emotion → Distortion로 넘길 때
+//   const handleMoveThoughtToDistortion = (payload: DistortionRequestPayload) => {
+//     setDistortionSeed(payload);
+//     const belief = payload.currentThought.belief ?? "";
+//     setDistortionText(belief);
+//     setDraft((d) => ({ ...d, distorted: belief }));
+//     setStep("distortion");
+//   };
+
+//   const handleDistortionChange = (v: string) => {
+//     setDistortionText(v);
+//     setDraft((d) => ({ ...d, distorted: v }));
+//   };
+
+//   const handleDistortionReset = () => {
+//     resetDistortion();
+//     setDraft((d) => ({ ...d, distorted: "" }));
+//   };
+
+//   const handleRequestDistortionAnalysis = () => {
+//     if (!distortionSeed) return;
+//     runAnalysis(distortionSeed);
+//   };
+
+//   // 🔽 비활성 Emotion 카드에서 보여줄 belief 요약 텍스트
+//   const collapsedEmotionBelief = distortionSeed?.currentThought.belief ?? "";
+
 //   return (
 //     <main className="min-h-screen bg-[#fafafa] p-6">
 //       <div className="mx-auto max-w-5xl">
-//         <header className="mb-6">
-//           <h1 className="text-2xl font-bold">세칸 기도문</h1>
-//           <p className="text-sm text-gray-600">
-//             먼저 감정을 기술하고, 그 다음 악마의 거짓말을 적은 뒤, 마지막으로
-//             대안적 사고를 작성합니다.
-//           </p>
-//         </header>
+//         <ThreePrayerHeader />
 
-//         {/* 단계 인디케이터 */}
-//         <div className="mb-4 flex items-center justify-between text-xs text-gray-500">
-//           <div className="flex flex-wrap gap-2">
-//             {stepOrder.map((s, i) => (
-//               <button
-//                 key={s}
-//                 type="button"
-//                 onClick={() => setStep(s)}
-//                 className={`rounded-full px-3 py-1 transition-colors ${
-//                   s === step
-//                     ? "bg-black text-white"
-//                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-//                 }`}
-//               >
-//                 {i + 1}. {getStepLabel(s)}
-//               </button>
-//             ))}
-//           </div>
-//           <div>
-//             {currentIndex + 1} / {stepOrder.length}
-//           </div>
-//         </div>
+//         <ThreePrayerStepIndicator
+//           step={step}
+//           stepOrder={stepOrder}
+//           currentIndex={currentIndex}
+//           getStepLabel={getStepLabel}
+//           onChangeStep={setStep}
+//         />
 
-//         {/* 세 칸 레이아웃 */}
-//         <section
-//           className={`grid grid-cols-1 items-start gap-4 ${getGridColsClass(
-//             step
-//           )}`}
-//         >
-//           <div className={getCardWrapperClass("distortion")}>
-//             <DistortionCard
-//               value={draft.distorted}
-//               onChange={(v) => setDraft((d) => ({ ...d, distorted: v }))}
-//               onReset={() => setDraft((d) => ({ ...d, distorted: "" }))}
-//             />
-//           </div>
+//         <ThreePrayerCardsSection
+//           step={step}
+//           getCardWrapperClass={getCardWrapperClass}
+//           getGridColsClass={getGridColsClass}
+//           // Emotion
+//           emotionValue={draft.prayer}
+//           onEmotionChange={(v) => setDraft((d) => ({ ...d, prayer: v }))}
+//           onEmotionReset={() => setDraft((d) => ({ ...d, prayer: "" }))}
+//           onMoveThoughtToDistortion={handleMoveThoughtToDistortion}
+//           collapsedEmotionBelief={collapsedEmotionBelief}
+//           // Distortion
+//           distortionValue={distortionText}
+//           onDistortionChange={handleDistortionChange}
+//           onDistortionReset={handleDistortionReset}
+//           isDistortionLoading={isDistortionLoading}
+//           onRequestDistortionAnalysis={handleRequestDistortionAnalysis}
+//           // Alternative
+//           alternativeValue={draft.truth}
+//           onAlternativeChange={(v) => setDraft((d) => ({ ...d, truth: v }))}
+//           onAlternativeReset={() => setDraft((d) => ({ ...d, truth: "" }))}
+//         />
 
-//           <div className={getCardWrapperClass("emotion")}>
-//             <EmotionCard
-//               value={draft.prayer}
-//               onChange={(v) => setDraft((d) => ({ ...d, prayer: v }))}
-//               onReset={() => setDraft((d) => ({ ...d, prayer: "" }))}
-//             />
-//           </div>
-
-//           <div className={getCardWrapperClass("alternative")}>
-//             <AlternativeThoughtCard
-//               value={draft.truth}
-//               onChange={(v) => setDraft((d) => ({ ...d, truth: v }))}
-//               onReset={() => setDraft((d) => ({ ...d, truth: "" }))}
-//             />
-//           </div>
-//         </section>
-
-//         {/* Footer (그대로 유지) */}
-//         <footer className="mt-16 border-t border-gray-200 pt-8">
-//           <div className="mb-6 text-center text-xs text-gray-500">
-//             <div className="inline-flex flex-col items-center gap-1">
-//               <span className="rounded-full border px-3 py-1 text-[11px]">
-//                 Copyright © 2025 617ALLIANCE
-//               </span>
-//               <div className="mt-2 flex items-center gap-2 text-[11px]">
-//                 <span className="inline-flex items-center gap-1">
-//                   <span>⭐</span>
-//                   <span>5.0</span>
-//                 </span>
-//                 <span className="h-3 w-px bg-gray-300" />
-//                 <span>총 2개의 후기</span>
-//               </div>
-//             </div>
-//           </div>
-
-//           <div className="mx-auto mb-6 max-w-2xl rounded-2xl bg-white p-4 shadow-sm">
-//             <h2 className="mb-3 text-sm font-semibold text-gray-800">
-//               후기 작성하기
-//             </h2>
-
-//             <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-//               <div className="flex items-center gap-2 text-xs text-gray-600">
-//                 <span>별점을 선택해주세요</span>
-//                 <div className="flex gap-1">
-//                   {[1, 2, 3, 4, 5].map((n) => (
-//                     <button
-//                       key={n}
-//                       type="button"
-//                       className="h-6 w-6 rounded-full border text-[11px] leading-5 hover:bg-yellow-50"
-//                     >
-//                       {n}
-//                     </button>
-//                   ))}
-//                 </div>
-//               </div>
-
-//               <input
-//                 type="text"
-//                 placeholder="닉네임 (선택사항, 미입력시 익명)"
-//                 className="w-full rounded-md border px-3 py-1.5 text-xs outline-none focus:border-black md:w-64"
-//               />
-//             </div>
-
-//             <textarea
-//               rows={4}
-//               placeholder="어떤 점이 좋았나요? 솔직한 후기를 남겨주세요 🙂"
-//               className="w-full rounded-md border px-3 py-2 text-xs outline-none focus:border-black"
-//             />
-
-//             <div className="mt-3 flex items-center justify-between text-[11px] text-gray-400">
-//               <span>0 / 300</span>
-//               <button
-//                 type="button"
-//                 className="rounded-full bg-violet-500 px-4 py-1.5 text-xs font-semibold text-white hover:bg-violet-600"
-//               >
-//                 후기 등록하기
-//               </button>
-//             </div>
-//           </div>
-
-//           <div className="mx-auto max-w-2xl">
-//             <h3 className="mb-2 text-xs font-semibold text-gray-700">
-//               후기 목록
-//             </h3>
-
-//             <div className="space-y-3 text-xs">
-//               <article className="rounded-2xl bg-white p-4 shadow-sm">
-//                 <div className="mb-1 flex items-center justify-between">
-//                   <div className="flex items-center gap-2">
-//                     <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px]">
-//                       ⭐ 5.0
-//                     </span>
-//                     <span className="font-semibold">익명 사용자</span>
-//                   </div>
-//                   <span className="text-[11px] text-gray-400">2시간 전</span>
-//                 </div>
-//                 <p className="text-[11px] text-gray-700">
-//                   자칫 일기에 멈춰버리는 걱정과 자기 자신에 대한 생각은 되려
-//                   처지게 만드는 경우가 많다. 스스로에 대해 분석하고 생각하는
-//                   능력이 부족할수록 일기도 힘들고, 그럴 때 세칸 구조를 통해
-//                   그러한 감정이 객관화되도록 나 자신을 관찰할 수 있도록 돕는
-//                   것은 자기 돌봄의 좋은 연습이라고 느꼈다.
-//                 </p>
-//               </article>
-//             </div>
-//           </div>
-//         </footer>
+//         <ThreePrayerFooter />
 //       </div>
 //     </main>
 //   );
@@ -211,14 +135,18 @@
 "use client";
 
 import type { ThreePrayerDraft } from "@/types/draft";
-import { useState } from "react";
-import { DistortionCard } from "../distortion/DistortionCard";
+import { useRef, useState } from "react";
 import {
   useDistortionAnalysis,
   type DistortionRequestPayload,
 } from "../distortion/hooks/useDistortionAnalysis";
-import { EmotionCard } from "../emotion";
-import { AlternativeThoughtCard } from "./AlternativeThoughtCard";
+import { ThreePrayerCardsSection } from "./ThreePrayerCardsSection";
+import { ThreePrayerFooter } from "./ThreePrayerFooter";
+import { ThreePrayerHeader } from "./ThreePrayerHeader";
+import { ThreePrayerStepIndicator } from "./ThreePrayerStepIndicator";
+
+export type Step = "emotion" | "distortion" | "alternative";
+export const stepOrder: Step[] = ["emotion", "distortion", "alternative"];
 
 type Props = {
   draft: ThreePrayerDraft;
@@ -226,15 +154,13 @@ type Props = {
   onResetAll: () => void;
 };
 
-type Step = "emotion" | "distortion" | "alternative";
-
-const stepOrder: Step[] = ["emotion", "distortion", "alternative"];
-
 export function ThreePrayerLayout({ draft, setDraft }: Props) {
   const [step, setStep] = useState<Step>("emotion");
   const currentIndex = stepOrder.indexOf(step);
 
-  // 🔽 인지오류 분석 훅 사용
+  // 🔹 왼쪽 인지오류 카드 DOM 참조
+  const distortionCardRef = useRef<HTMLDivElement>(null);
+
   const {
     distortionText,
     setDistortionText,
@@ -243,7 +169,6 @@ export function ThreePrayerLayout({ draft, setDraft }: Props) {
     runAnalysis,
   } = useDistortionAnalysis();
 
-  // Emotion 쪽에서 넘어온 seed 보관
   const [distortionSeed, setDistortionSeed] =
     useState<DistortionRequestPayload | null>(null);
 
@@ -273,16 +198,36 @@ export function ThreePrayerLayout({ draft, setDraft }: Props) {
     }
   };
 
-  // 🔽 Emotion 쪽에서 "인지오류 검토하기" 눌렀을 때 호출
+  // 🔹 공통: step이 distortion으로 바뀐 직후 왼쪽 카드로 스크롤
+  const focusDistortionCard = () => {
+    if (!distortionCardRef.current) return;
+    // next frame에서 실행해서 레이아웃 반영 후 스크롤
+    requestAnimationFrame(() => {
+      distortionCardRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
+  };
+
+  // Step indicator에서 직접 단계 바꿀 때도 적용
+  const handleChangeStep = (next: Step) => {
+    setStep(next);
+    if (next === "distortion") {
+      focusDistortionCard();
+    }
+  };
+
+  // Emotion → Distortion로 넘길 때
   const handleMoveThoughtToDistortion = (payload: DistortionRequestPayload) => {
     setDistortionSeed(payload);
     const belief = payload.currentThought.belief ?? "";
     setDistortionText(belief);
     setDraft((d) => ({ ...d, distorted: belief }));
     setStep("distortion");
+    focusDistortionCard();
   };
 
-  // DistortionCard용 change / reset
   const handleDistortionChange = (v: string) => {
     setDistortionText(v);
     setDraft((d) => ({ ...d, distorted: v }));
@@ -298,164 +243,45 @@ export function ThreePrayerLayout({ draft, setDraft }: Props) {
     runAnalysis(distortionSeed);
   };
 
+  const collapsedEmotionBelief = distortionSeed?.currentThought.belief ?? "";
+
   return (
     <main className="min-h-screen bg-[#fafafa] p-6">
       <div className="mx-auto max-w-5xl">
-        <header className="mb-6">
-          <h1 className="text-2xl font-bold">세칸 기도문</h1>
-          <p className="text-sm text-gray-600">
-            먼저 감정을 기술하고, 그 다음 악마의 거짓말을 적은 뒤, 마지막으로
-            대안적 사고를 작성합니다.
-          </p>
-        </header>
+        <ThreePrayerHeader />
 
-        {/* 단계 인디케이터 */}
-        <div className="mb-4 flex items-center justify-between text-xs text-gray-500">
-          <div className="flex flex-wrap gap-2">
-            {stepOrder.map((s, i) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setStep(s)}
-                className={`rounded-full px-3 py-1 transition-colors ${
-                  s === step
-                    ? "bg-black text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                {i + 1}. {getStepLabel(s)}
-              </button>
-            ))}
-          </div>
-          <div>
-            {currentIndex + 1} / {stepOrder.length}
-          </div>
-        </div>
+        <ThreePrayerStepIndicator
+          step={step}
+          stepOrder={stepOrder}
+          currentIndex={currentIndex}
+          getStepLabel={getStepLabel}
+          onChangeStep={handleChangeStep}
+        />
 
-        {/* 세 칸 레이아웃 */}
-        <section
-          className={`grid grid-cols-1 items-start gap-4 ${getGridColsClass(
-            step
-          )}`}
-        >
-          <div className={getCardWrapperClass("distortion")}>
-            <DistortionCard
-              value={distortionText}
-              onChange={handleDistortionChange}
-              onReset={handleDistortionReset}
-              isLoading={isDistortionLoading}
-              onRequestAnalysis={handleRequestDistortionAnalysis}
-            />
-          </div>
+        <ThreePrayerCardsSection
+          step={step}
+          getCardWrapperClass={getCardWrapperClass}
+          getGridColsClass={getGridColsClass}
+          distortionCardRef={distortionCardRef}
+          // Emotion
+          emotionValue={draft.prayer}
+          onEmotionChange={(v) => setDraft((d) => ({ ...d, prayer: v }))}
+          onEmotionReset={() => setDraft((d) => ({ ...d, prayer: "" }))}
+          onMoveThoughtToDistortion={handleMoveThoughtToDistortion}
+          collapsedEmotionBelief={collapsedEmotionBelief}
+          // Distortion
+          distortionValue={distortionText}
+          onDistortionChange={handleDistortionChange}
+          onDistortionReset={handleDistortionReset}
+          isDistortionLoading={isDistortionLoading}
+          onRequestDistortionAnalysis={handleRequestDistortionAnalysis}
+          // Alternative
+          alternativeValue={draft.truth}
+          onAlternativeChange={(v) => setDraft((d) => ({ ...d, truth: v }))}
+          onAlternativeReset={() => setDraft((d) => ({ ...d, truth: "" }))}
+        />
 
-          <div className={getCardWrapperClass("emotion")}>
-            <EmotionCard
-              value={draft.prayer}
-              onChange={(v) => setDraft((d) => ({ ...d, prayer: v }))}
-              onReset={() => setDraft((d) => ({ ...d, prayer: "" }))}
-              onMoveThoughtToDistortion={handleMoveThoughtToDistortion}
-            />
-          </div>
-
-          <div className={getCardWrapperClass("alternative")}>
-            <AlternativeThoughtCard
-              value={draft.truth}
-              onChange={(v) => setDraft((d) => ({ ...d, truth: v }))}
-              onReset={() => setDraft((d) => ({ ...d, truth: "" }))}
-            />
-          </div>
-        </section>
-
-        {/* Footer (그대로 유지) */}
-        <footer className="mt-16 border-t border-gray-200 pt-8">
-          <div className="mb-6 text-center text-xs text-gray-500">
-            <div className="inline-flex flex-col items-center gap-1">
-              <span className="rounded-full border px-3 py-1 text-[11px]">
-                Copyright © 2025 617ALLIANCE
-              </span>
-              <div className="mt-2 flex items-center gap-2 text-[11px]">
-                <span className="inline-flex items-center gap-1">
-                  <span>⭐</span>
-                  <span>5.0</span>
-                </span>
-                <span className="h-3 w-px bg-gray-300" />
-                <span>총 2개의 후기</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mx-auto mb-6 max-w-2xl rounded-2xl bg-white p-4 shadow-sm">
-            <h2 className="mb-3 text-sm font-semibold text-gray-800">
-              후기 작성하기
-            </h2>
-
-            <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-2 text-xs text-gray-600">
-                <span>별점을 선택해주세요</span>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <button
-                      key={n}
-                      type="button"
-                      className="h-6 w-6 rounded-full border text-[11px] leading-5 hover:bg-yellow-50"
-                    >
-                      {n}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <input
-                type="text"
-                placeholder="닉네임 (선택사항, 미입력시 익명)"
-                className="w-full rounded-md border px-3 py-1.5 text-xs outline-none focus:border-black md:w-64"
-              />
-            </div>
-
-            <textarea
-              rows={4}
-              placeholder="어떤 점이 좋았나요? 솔직한 후기를 남겨주세요 🙂"
-              className="w-full rounded-md border px-3 py-2 text-xs outline-none focus:border-black"
-            />
-
-            <div className="mt-3 flex items-center justify-between text-[11px] text-gray-400">
-              <span>0 / 300</span>
-              <button
-                type="button"
-                className="rounded-full bg-violet-500 px-4 py-1.5 text-xs font-semibold text-white hover:bg-violet-600"
-              >
-                후기 등록하기
-              </button>
-            </div>
-          </div>
-
-          <div className="mx-auto max-w-2xl">
-            <h3 className="mb-2 text-xs font-semibold text-gray-700">
-              후기 목록
-            </h3>
-
-            <div className="space-y-3 text-xs">
-              <article className="rounded-2xl bg-white p-4 shadow-sm">
-                <div className="mb-1 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px]">
-                      ⭐ 5.0
-                    </span>
-                    <span className="font-semibold">익명 사용자</span>
-                  </div>
-                  <span className="text-[11px] text-gray-400">2시간 전</span>
-                </div>
-                <p className="text-[11px] text-gray-700">
-                  자칫 일기에 멈춰버리는 걱정과 자기 자신에 대한 생각은 되려
-                  처지게 만드는 경우가 많다. 스스로에 대해 분석하고 생각하는
-                  능력이 부족할수록 일기도 힘들고, 그럴 때 세칸 구조를 통해
-                  그러한 감정이 객관화되도록 나 자신을 관찰할 수 있도록 돕는
-                  것은 자기 돌봄의 좋은 연습이라고 느꼈다.
-                </p>
-              </article>
-            </div>
-          </div>
-        </footer>
+        <ThreePrayerFooter />
       </div>
     </main>
   );
