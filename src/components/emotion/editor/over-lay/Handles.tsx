@@ -57,3 +57,38 @@ export function Handles({
     </>
   );
 }
+
+// export function Handles({
+//   segment,
+//   charRects,
+//   index,
+//   onStartDrag,
+// }: HandlesProps) {
+//   const startRect = charRects[segment.start];
+//   const endRect = charRects[segment.end - 1];
+//   if (!startRect || !endRect) return null;
+
+//   const handleHeight = startRect.height * 0.5;
+
+//   const colorIndex = index % HANDLE_COLORS.length;
+//   const theme = HANDLE_COLORS[colorIndex];
+
+//   return (
+//     <>
+//       <HandleBar
+//         left={startRect.left} // 🔧 - 2 제거
+//         top={startRect.top + startRect.height / 2}
+//         height={handleHeight}
+//         className={theme}
+//         onMouseDown={() => onStartDrag("start")}
+//       />
+//       <HandleBar
+//         left={endRect.right} // 🔧 + 2 제거
+//         top={endRect.top + endRect.height / 2}
+//         height={handleHeight}
+//         className={theme}
+//         onMouseDown={() => onStartDrag("end")}
+//       />
+//     </>
+//   );
+// }
