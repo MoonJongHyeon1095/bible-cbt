@@ -1,10 +1,11 @@
 // src/components/emotion/types/emotion.types.ts
-import { RelativeRect } from "../utils/splitToCharRects";
+import { RelativeRect } from "../editor/utils/splitToCharRects";
 
 export type EmotionInputSegment = {
   id: string;
   start: number;
   end: number;
+  trimEdges?: boolean;
 };
 
 export type EmotionInputOverlay = {

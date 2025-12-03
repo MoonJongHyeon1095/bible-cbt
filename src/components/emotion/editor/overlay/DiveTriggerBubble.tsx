@@ -1,25 +1,24 @@
-// src/components/emotion/editor/over-lay/SelectionBubble.tsx
+// src/components/emotion/editor/overlay/DiveTriggerBubble.tsx
 "use client";
 
 import type { EmotionInputSegment } from "../../types/emotion.types";
-import type { RelativeRect } from "../../utils/splitToCharRects";
+import type { RelativeRect } from "../utils/splitToCharRects";
 
-type DeleteBubbleProps = {
+type DiveTriggerBubbleProps = {
   segment: EmotionInputSegment;
   charRects: RelativeRect[];
   index: number;
   activeCharIndex?: number | null;
-  onDelete: () => void;
+  onDive: () => void;
 };
 
-export function DeleteBubble({
+export function DiveTriggerBubble({
   segment,
   charRects,
   index,
   activeCharIndex,
-  onDelete,
-}: DeleteBubbleProps) {
-  // ── 세그먼트 전체 bounding box ─────────────────────
+  onDive,
+}: DiveTriggerBubbleProps) {
   let minLeft = Infinity;
   let maxRight = -Infinity;
   let minTop = Infinity;
@@ -34,7 +33,6 @@ export function DeleteBubble({
 
   if (!Number.isFinite(minLeft) || !Number.isFinite(maxRight)) return null;
 
-  // ── 클릭한 글자 기준 anchor 좌표 ─────────────────────
   let anchorLeft: number | null = null;
   let anchorTop: number | null = null;
 
@@ -50,53 +48,49 @@ export function DeleteBubble({
     }
   }
 
-  // 클릭한 글자 정보 없으면 세그먼트 중앙 기준
   if (anchorLeft === null || anchorTop === null) {
     const width = maxRight - minLeft;
     anchorLeft = minLeft + width / 2;
     anchorTop = minTop;
   }
 
-  // ── 말풍선 Y 위치: 선택 텍스트보다 충분히 위로 ────────
-  const BUBBLE_HEIGHT = 24; // h-6 정도
-  const TAIL_HEIGHT = 8;
-  const GAP = 4;
-  const top = anchorTop - (BUBBLE_HEIGHT + TAIL_HEIGHT + GAP);
+  const top = anchorTop + 28;
 
   return (
     <div
       className="absolute"
-      style={{ left: anchorLeft, top, zIndex: 40 + index }}
+      style={{ left: anchorLeft, top, zIndex: 60 + index }}
       onClick={(e) => e.stopPropagation()}
     >
-      {/* 말풍선 몸통 */}
       <button
         type="button"
         className="
-          relative
-          flex h-6 w-6 items-center justify-center
+          relative flex h-8 w-8 items-center justify-center
           -translate-x-1/2
-          rounded-full border border-gray-200
-          bg-white text-[11px] leading-none
-          shadow-sm
-          transition-colors duration-150
-          hover:bg-gray-50
+          rounded-full border
+          border-[#CCC8FF]
+          bg-[#5B4BFF] bg-opacity-90
+          text-white text-[17px] font-extrabold leading-none
+          shadow-md shadow-indigo-300/25
+          transition-transform duration-150
+          hover:translate-y-[2px]
+          active:translate-y-[4px]
         "
         onClick={(e) => {
           e.stopPropagation();
-          onDelete();
+          onDive();
         }}
       >
-        ✕{/* 꼬리: 아래쪽에 붙는 회전된 정사각형 */}
+        ↓
         <span
           className="
             pointer-events-none
-            absolute left-1/2 top-full
-            h-2 w-2
-            -translate-x-1/2 -translate-y-[2px]
+            absolute left-1/2 bottom-full
+            h-2.5 w-2.5
+            -translate-x-1/2 translate-y-[3px]
             rotate-45
-            bg-white
-            border-b border-r border-gray-200
+            bg-[#5B4BFF] bg-opacity-90
+            border-t border-l border-[#CCC8FF]
           "
         />
       </button>

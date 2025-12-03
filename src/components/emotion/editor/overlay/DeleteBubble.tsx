@@ -1,24 +1,24 @@
-// src/components/emotion/editor/over-lay/DiveTriggerBubble.tsx
+// src/components/emotion/editor/overlay/DeleteBubble.tsx
 "use client";
 
 import type { EmotionInputSegment } from "../../types/emotion.types";
-import type { RelativeRect } from "../../utils/splitToCharRects";
+import type { RelativeRect } from "../utils/splitToCharRects";
 
-type DiveTriggerBubbleProps = {
+type DeleteBubbleProps = {
   segment: EmotionInputSegment;
   charRects: RelativeRect[];
   index: number;
   activeCharIndex?: number | null;
-  onDive: () => void;
+  onDelete: () => void;
 };
 
-export function DiveTriggerBubble({
+export function DeleteBubble({
   segment,
   charRects,
   index,
   activeCharIndex,
-  onDive,
-}: DiveTriggerBubbleProps) {
+  onDelete,
+}: DeleteBubbleProps) {
   let minLeft = Infinity;
   let maxRight = -Infinity;
   let minTop = Infinity;
@@ -54,43 +54,44 @@ export function DiveTriggerBubble({
     anchorTop = minTop;
   }
 
-  const top = anchorTop + 28;
+  const BUBBLE_HEIGHT = 24;
+  const TAIL_HEIGHT = 8;
+  const GAP = 4;
+  const top = anchorTop - (BUBBLE_HEIGHT + TAIL_HEIGHT + GAP);
 
   return (
     <div
       className="absolute"
-      style={{ left: anchorLeft, top, zIndex: 60 + index }}
+      style={{ left: anchorLeft, top, zIndex: 40 + index }}
       onClick={(e) => e.stopPropagation()}
     >
       <button
         type="button"
         className="
-          relative flex h-8 w-8 items-center justify-center
+          relative
+          flex h-6 w-6 items-center justify-center
           -translate-x-1/2
-          rounded-full border
-          border-[#CCC8FF]
-          bg-[#5B4BFF] bg-opacity-90
-          text-white text-[17px] font-extrabold leading-none
-          shadow-md shadow-indigo-300/25
-          transition-transform duration-150
-          hover:translate-y-[2px]
-          active:translate-y-[4px]
+          rounded-full border border-gray-200
+          bg-white text-[11px] leading-none
+          shadow-sm
+          transition-colors duration-150
+          hover:bg-gray-50
         "
         onClick={(e) => {
           e.stopPropagation();
-          onDive();
+          onDelete();
         }}
       >
-        ↓{/* 꼬리 */}
+        ✕
         <span
           className="
             pointer-events-none
-            absolute left-1/2 bottom-full
-            h-2.5 w-2.5
-            -translate-x-1/2 translate-y-[3px]
+            absolute left-1/2 top-full
+            h-2 w-2
+            -translate-x-1/2 -translate-y-[2px]
             rotate-45
-            bg-[#5B4BFF] bg-opacity-90
-            border-t border-l border-[#CCC8FF]
+            bg-white
+            border-b border-r border-gray-200
           "
         />
       </button>

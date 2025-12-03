@@ -1,5 +1,5 @@
 // src/components/emotion/utils/splitToInputSegments.ts
-import type { EmotionInputSegment } from "../types/emotion.types";
+import type { EmotionInputSegment } from "../../types/emotion.types";
 
 export function splitToInputSegments(rawText: string): EmotionInputSegment[] {
   const result: EmotionInputSegment[] = [];
@@ -10,6 +10,8 @@ export function splitToInputSegments(rawText: string): EmotionInputSegment[] {
   const pushSegment = (endIndex: number) => {
     const text = rawText.slice(start, endIndex).trim();
     if (!text) return;
+
+    // ✅ 여기서는 start / end 인덱스를 "원본 기준" 그대로 유지한다.
     result.push({
       id: crypto.randomUUID(),
       start,

@@ -4,7 +4,7 @@
 import type {
   EmotionInputSegment,
   EmotionSegment,
-} from "../types/emotion.types";
+} from "../../types/emotion.types";
 
 /**
  * segments 상태를 EmotionSegment로 변환해서 상위 onConfirm으로 알려주는 훅

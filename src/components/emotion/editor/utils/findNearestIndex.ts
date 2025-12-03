@@ -1,4 +1,3 @@
-// src/components/emotion/utils/findNearestIndex.ts
 import type { RelativeRect } from "./splitToCharRects";
 
 /**
@@ -7,6 +6,8 @@ import type { RelativeRect } from "./splitToCharRects";
  * 1. 줄(row)을 y 기준으로 고르고
  * 2. 그 줄 안에서 x 기준으로 가장 가까운 글자를 찾되,
  *    거리 비슷하면 **왼쪽에 있는 글자**를 우선한다.
+ * 3. x가 줄의 오른쪽 끝/왼쪽 끝을 충분히 벗어나면
+ *    위/아래 줄로 스냅(snap)시킨다.
  */
 export function findNearestIndex(
   charRects: RelativeRect[],
@@ -43,20 +44,20 @@ export function findNearestIndex(
 
   // 2) y 기준으로 가장 가까운 줄 선택
   let bestRow = rows[0];
+  let bestRowIndex = 0;
   let bestRowDist = Infinity;
 
-  for (const row of rows) {
+  rows.forEach((row, idx) => {
     const cy = row.top + row.height / 2;
     const dy = Math.abs(y - cy);
     if (dy < bestRowDist) {
       bestRowDist = dy;
       bestRow = row;
+      bestRowIndex = idx;
     }
-  }
+  });
 
-  // 3) 그 줄 안에서 x 기준으로 가장 가까운 글자 선택
-  //    - 항상 왼쪽→오른쪽 순으로 정렬해 두고
-  //    - 거리 비슷하면 왼쪽(cx가 더 작은 것)을 우선
+  // 현재 줄의 x 중심값들 계산
   const centers = bestRow.indices
     .map((idx) => {
       const r = charRects[idx]!;
@@ -65,13 +66,50 @@ export function findNearestIndex(
     })
     .sort((a, b) => a.cx - b.cx); // 왼쪽→오른쪽
 
-  // x가 줄의 가장 왼쪽보다 왼쪽이면 맨 앞, 가장 오른쪽보다 오른쪽이면 맨 뒤
-  if (x <= centers[0].cx) return centers[0].idx;
-  if (x >= centers[centers.length - 1].cx)
-    return centers[centers.length - 1].idx;
+  if (!centers.length) return 0;
 
-  // 그 외에는 "가장 가까운 cx", 거리 같으면 더 왼쪽인(cx 작은) 글자
-  let best = centers[0];
+  const first = centers[0];
+  const last = centers[centers.length - 1];
+
+  // 🔧 "줄 경계 넘어가기" 허용 폭 (줄 높이의 0.6배 정도)
+  const overflow = bestRow.height * 0.6;
+
+  // 2-1) 오른쪽 끝을 충분히 넘으면 아래 줄 첫 글자로 스냅
+  if (
+    x > last.cx + overflow &&
+    bestRowIndex < rows.length - 1 // 아래 줄 있음
+  ) {
+    const nextRow = rows[bestRowIndex + 1];
+    const nextCenters = nextRow.indices
+      .map((idx) => {
+        const r = charRects[idx]!;
+        const cx = (r.left + r.right) / 2;
+        return { idx, cx };
+      })
+      .sort((a, b) => a.cx - b.cx);
+
+    return nextCenters[0].idx; // 아래 줄의 첫 글자
+  }
+
+  // 2-2) 왼쪽 끝을 충분히 넘으면 윗줄 마지막 글자로 스냅 (보너스)
+  if (x < first.cx - overflow && bestRowIndex > 0) {
+    const prevRow = rows[bestRowIndex - 1];
+    const prevCenters = prevRow.indices
+      .map((idx) => {
+        const r = charRects[idx]!;
+        const cx = (r.left + r.right) / 2;
+        return { idx, cx };
+      })
+      .sort((a, b) => a.cx - b.cx);
+
+    return prevCenters[prevCenters.length - 1].idx; // 윗줄의 마지막 글자
+  }
+
+  // 3) 그 줄 안에서 x 기준으로 가장 가까운 글자 선택
+  if (x <= first.cx) return first.idx;
+  if (x >= last.cx) return last.idx;
+
+  let best = first;
   let bestDist = Math.abs(x - best.cx);
 
   for (let i = 1; i < centers.length; i++) {

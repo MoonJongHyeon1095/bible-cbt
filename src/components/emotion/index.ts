@@ -1,26 +1,25 @@
 // src/components/emotion/index.ts
 
-export * from "./editor/over-lay/DeleteBubble";
-export * from "./editor/over-lay/DiveTriggerBubble";
-export * from "./editor/over-lay/HandleBar";
-export * from "./editor/over-lay/Handles";
-export * from "./editor/over-lay/HighLight";
+export * from "./editor/overlay/DeleteBubble";
+export * from "./editor/overlay/DiveTriggerBubble";
+export * from "./editor/overlay/HandleBar";
+export * from "./editor/overlay/Handles";
+export * from "./editor/overlay/Highlight";
 
 export * from "./editor/SegmentEditor";
 export * from "./editor/SegmentOverlay";
 export * from "./editor/TextLayer";
 
-export * from "./hooks/useActiveSegmentSelection";
-export * from "./hooks/useDragSegmentEdge";
-export * from "./hooks/useSegmentNotifier";
-export * from "./hooks/useSegments";
+export * from "./editor/hooks/useDragSegmentEdge";
+export * from "./editor/hooks/useSegmentNotifier";
+export * from "./editor/hooks/useSegments";
 
 export * from "./input/TextInput";
 
 export * from "./types/emotion.types";
 
-export * from "./utils/findNearestIndex";
-export * from "./utils/splitToCharRects";
-export * from "./utils/splitToInputSegments";
+export * from "./editor/utils/findNearestIndex";
+export * from "./editor/utils/splitToCharRects";
+export * from "./editor/utils/splitToInputSegments";
 
 export * from "./EmotionCard";
