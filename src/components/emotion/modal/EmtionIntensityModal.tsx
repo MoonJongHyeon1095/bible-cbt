@@ -23,10 +23,10 @@ const EMOTION_NAME_BY_ID: Record<string, string> = {
 
 function getIntensityLabel(value: number): string {
   if (value === 0) return "0 (전혀 안 느껴짐)";
-  if (value <= 25) return "조금 느껴지는 정도 - 불편하시군요";
-  if (value <= 45) return "중간 정도 - 상당히 불편하시군요";
-  if (value <= 65) return "상당히 강한 정도 - 매우 고통스러우시군요";
-  if (value <= 85) return "매우 강렬한 정도 - 극심하게 고통스러우시군요";
+  if (value <= 25) return "조금 느껴지는 정도 - 불편을 느낍니다.";
+  if (value <= 45) return "중간 정도 - 상당한 불편을 느낍니다.";
+  if (value <= 65) return "상당히 강한 정도 - 매우 고통스럽습니다.";
+  if (value <= 85) return "매우 강렬한 정도 - 극심하게 고통스럽습니다.";
   return "거의 최대에 가까운 정도 - 감정이 압도적으로 느껴집니다";
 }
 
@@ -96,9 +96,12 @@ export function EmotionIntensityModal({
               중추)가 진정되기 시작합니다.
             </span>
           </p>
-          <p className="mt-3 text-[11px] text-slate-500">
-            ※ 연구 예: 감정 라벨링(labeling)이 편도체 활성도를 낮춘다는 뇌과학
-            연구들 (향후 구체 출처 표기 예정)
+          <p className="mt-3 text-[11px] text-slate-500 leading-relaxed">
+            대표 연구
+            <br />
+            Lieberman et al. (2007, Psychological Science)
+            <br />
+            Torre & Lieberman (2018, Emotion Review)
           </p>
         </div>
 

@@ -1,15 +1,15 @@
-// src/components/emotion/editor/SegmentEditorCanvas.tsx
+// src/components/emotion/editor/SegmentEditorTextBoxSection.tsx
 "use client";
 
 import type { EmotionInputSegment } from "../types/emotion.types";
-import { TextLayer } from "./TextLayer";
+import { SegmentEditorTextBox } from "./SegmentEditorTextBox";
 import { DeleteBubble } from "./overlay/DeleteBubble";
 import { DiveTriggerBubble } from "./overlay/DiveTriggerBubble";
 import { Handles } from "./overlay/Handles";
 import { Highlight } from "./overlay/Highlight";
 import type { RelativeRect } from "./utils/splitToCharRects";
 
-export function SegmentEditorCanvas({
+export function SegmentEditorTextBoxSection({
   text,
   containerRef,
   charRects,
@@ -67,7 +67,7 @@ export function SegmentEditorCanvas({
         onClick={onTextClick}
       >
         <div className="relative z-10">
-          <TextLayer
+          <SegmentEditorTextBox
             text={text}
             containerRef={containerRef}
             onCharRectsChange={onCharRectsChange}

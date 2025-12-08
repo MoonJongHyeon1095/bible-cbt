@@ -6,7 +6,7 @@ import type {
   EmotionInputSegment,
   EmotionSegment,
 } from "../types/emotion.types";
-import { SegmentEditorCanvas } from "./SegmentEditorCanvas";
+import { SegmentEditorTextBoxSection } from "./SegmentEditorTextBoxSection";
 import { SegmentEditorToolbar } from "./SegmentEditorToolbar";
 import { useDragSegmentEdge } from "./hooks/useDragSegmentEdge";
 import { useSegmentEditorMouseHandlers } from "./hooks/useSegmentEditorMouseHandlers";
@@ -104,7 +104,7 @@ export function SegmentEditor({
         }}
       />
 
-      <SegmentEditorCanvas
+      <SegmentEditorTextBoxSection
         text={text}
         containerRef={containerRef}
         charRects={charRects}

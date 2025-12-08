@@ -1,4 +1,4 @@
-// src/components/emotion/editor/TextLayer.tsx
+// src/components/emotion/editor/SegmentEditorTextBox.tsx
 "use client";
 
 import { useEffect } from "react";
@@ -10,7 +10,7 @@ type TextLayerProps = {
   onCharRectsChange: (rects: RelativeRect[]) => void;
 };
 
-export function TextLayer({
+export function SegmentEditorTextBox({
   text,
   containerRef,
   onCharRectsChange,

@@ -40,7 +40,7 @@ export function ThreePrayerLayout({ draft, setDraft }: Props) {
     useState<DistortionRequestPayload | null>(null);
 
   const getStepLabel = (s: Step) => {
-    if (s === "emotion") return "감정 기술 / 자동사고 체크";
+    if (s === "emotion") return "감정 일기 - 자동사고 체크";
     if (s === "distortion") return "사탄의 거짓말 - 인지오류 검토";
     return "성경 말씀 - 대안사고 구성";
   };

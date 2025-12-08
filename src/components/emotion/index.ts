@@ -7,8 +7,8 @@ export * from "./editor/overlay/Handles";
 export * from "./editor/overlay/Highlight";
 
 export * from "./editor/SegmentEditor";
+export * from "./editor/SegmentEditorTextBox";
 export * from "./editor/SegmentOverlay";
-export * from "./editor/TextLayer";
 
 export * from "./editor/hooks/useDragSegmentEdge";
 export * from "./editor/hooks/useSegmentNotifier";
