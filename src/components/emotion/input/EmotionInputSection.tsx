@@ -1,8 +1,8 @@
-// src/components/emotion/EmotionInputSection.tsx
+// src/components/emotion/input/EmotionInputSection.tsx
 "use client";
 
-import { EmotionExamples } from "./EmotionExamples";
-import { TextInput } from "./input/TextInput";
+import { EmotionExamples } from "../EmotionExamples";
+import { TextInput } from "./TextInput";
 
 type Props = {
   value: string;

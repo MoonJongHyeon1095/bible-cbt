@@ -11,8 +11,8 @@ import {
   CardTitle,
 } from "../ui/card";
 import { EmotionCollapsedOverlay } from "./collapsed/EmotionCollapsedOverlay";
-import { EmotionInputSection } from "./EmotionInputSection";
 import { EmotionSegmentsSection } from "./EmotionSegmentSection";
+import { EmotionInputSection } from "./input/EmotionInputSection";
 import { EmotionPrimarySelectModal } from "./modal/EmotionPrimarySelectonModal";
 import {
   EmotionRegulationChoiceModal,
@@ -52,7 +52,7 @@ const EMOTION_NAME_BY_ID: Record<string, string> = {
   stuck: "답답함",
 };
 
-export function EmotionCard({
+export function EmotionLayout({
   value,
   onChange,
   onReset,

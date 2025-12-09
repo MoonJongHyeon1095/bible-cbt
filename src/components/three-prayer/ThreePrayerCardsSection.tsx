@@ -3,9 +3,9 @@
 
 import { RefObject } from "react";
 import { AlternativeThoughtCard } from "../alternative/AlternativeThoughtCard";
-import { DistortionSection } from "../distortion/DistortionSection";
+import { DistortionLayout } from "../distortion/DistortionLayout";
 import type { DistortionRequestPayload } from "../distortion/hooks/useDistortionAnalysis";
-import { EmotionCard } from "../emotion";
+import { EmotionLayout } from "../emotion/EmotionLayout";
 import type { Step } from "./ThreePrayerLayout";
 
 type Props = {
@@ -71,7 +71,7 @@ export function ThreePrayerCardsSection({
           ref={distortionCardRef}
           className={getCardWrapperClass("distortion")}
         >
-          <DistortionSection
+          <DistortionLayout
             distortionValue={distortionValue}
             onChange={onDistortionChange}
             onReset={onDistortionReset}
@@ -85,7 +85,7 @@ export function ThreePrayerCardsSection({
       {/* Emotion (가운데) */}
       <div className="px-1 sm:px-2 lg:px-3">
         <div className={getCardWrapperClass("emotion")}>
-          <EmotionCard
+          <EmotionLayout
             value={emotionValue}
             onChange={onEmotionChange}
             onReset={onEmotionReset}
